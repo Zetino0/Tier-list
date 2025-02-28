@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier List Personalizzata</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url('images/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .title {
+            font-family: 'Anton', sans-serif;
+            font-size: 36px;
+            color: #170f0f;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .title .highlight {
+            color: #2eadb2;
+        }
+        .tier {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-bottom: 5px;
+            min-height: 60px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .tier h3 {
+            width: 100px;
+            margin: 0;
+            color: #170f0f;
+            text-align: center;
+        }
+        .tier .dropzone {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 60px;
+            background: rgba(169, 169, 210, 0.7);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .dropzone:hover {
+            background-color: rgba(169, 169, 210, 0.9);
+        }
+        .item {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-size: cover;
+            cursor: grab;
+            border: 2px solid #FF6F91;
+            transition: transform 0.2s ease;
+        }
+        .item:active {
+            cursor: grabbing;
+        }
+        .item:hover {
+            transform: scale(1.1);
+        }
+        .item.used {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        #tier-items {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(169, 169, 210, 0.7);
+            border-radius: 5px;
+            min-height: 80px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            TIER LIST WUTHERING WAVES by<span class="highlight"> LUNARCTIC</span>
+        </div>
+
+        <div class="tier" id="tier-s">
+            <h3>S</h3>
+            <div class="dropzone"></div>
+        </div>
+        <div class="tier" id="tier-a">
+            <h3>A</h3>
+            <div class="dropzone"></div>
+        </div>
+        <div class="tier" id="tier-b">
+            <h3>B</h3>
+            <div class="dropzone"></div>
+        </div>
+        <div class="tier" id="tier-c">
+            <h3>C</h3>
+            <div class="dropzone"></div>
+        </div>
+        <div class="tier" id="tier-d">
+            <h3>D</h3>
+            <div class="dropzone"></div>
+        </div>
+        <div id="tier-items" class="dropzone"></div>
+    </div>
+
+    <script>
+        const images = [];
+        for (let i = 1; i <= 30; i++) {
+            images.push(`images/img${i}.png`);
+        }
+
+        const itemBox = document.querySelector('#tier-items');
+
+        images.forEach((src, index) => {
+            const item = document.createElement('div');
+            item.classList.add('item');
+            item.style.backgroundImage = `url(${src})`;
+            item.draggable = true;
+            item.dataset.id = index;
+
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', src);
+                e.dataTransfer.setData('text/id', item.dataset.id);
+                setTimeout(() => item.style.display = 'none', 0); // Nasconde l'elemento da tier-items
+            });
+
+            item.addEventListener('dragend', () => {
+                item.style.display = 'block'; // Mostra di nuovo l'elemento dopo il drop
+                item.style.opacity = 1;  // Ripristina l'opacità
+            });
+
+            itemBox.appendChild(item);
+        });
+
+        document.querySelectorAll('.dropzone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+
+                const src = e.dataTransfer.getData('text/plain');
+                const id = e.dataTransfer.getData('text/id');
+                const draggedItem = document.querySelector(`.item[data-id="${id}"]`);
+
+                if (draggedItem) {
+                    zone.appendChild(draggedItem);  // Aggiungi l'elemento alla nuova zona
+                    draggedItem.style.opacity = 1; // Ripristina l'opacità dopo il drop
+
+                    // Aggiungi l'evento di click per rimuovere l'elemento dalla tier list
+                    draggedItem.addEventListener('click', () => {
+                        zone.removeChild(draggedItem); // Rimuove l'elemento dalla zona
+                        itemBox.appendChild(draggedItem); // Lo rimette nel box
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
